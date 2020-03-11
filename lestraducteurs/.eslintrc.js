@@ -9,9 +9,9 @@ module.exports = {
     'prettier/prettier': [
       'error',
       {
-        printWidth: 120, // 1行の最大文字数を120文字とする。
-        semi: false, // セミコロンは不要
-        singleQuote: true // シングルクォーテーションはOK
+        "printWidth": 120, // 1行の最大文字数を120文字とする。
+        "semi": false, // セミコロンは不要
+        "singleQuote": true, // シングルクォーテーションはOK
       }
     ]
   },
