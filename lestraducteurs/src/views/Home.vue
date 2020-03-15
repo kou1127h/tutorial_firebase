@@ -1,6 +1,6 @@
 <template>
   <ul class="home">
-    <Item v-for="whisper in orderBy(whispers, 'date', -1)" :key="whisper.id" :id="whisper.id" :uid="whisper.uid" />
+    <Item v-for="whisper in orderBy(whispers, 'date', -1)" :id="whisper.id" :key="whisper.id" :uid="whisper.uid" />
   </ul>
 </template>
 

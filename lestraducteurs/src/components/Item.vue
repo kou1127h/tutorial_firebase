@@ -3,11 +3,11 @@
   <!-- TODO: 親要素までこっちに組み込む -->
   <li class="item">
     <div class="user-box">
-      <div class="avatar" :style="'background-image: url(' + user.photoURL + ')'"></div>
+      <div class="avatar" :style="'background-image: url(' + user.photoURL + ')'"/>
 
       <p class="user-name">{{ user.name }}</p>
     </div>
-    <div class="content" v-html="whisper.content"></div>
+    <div class="content" v-html="whisper.content"/>
   </li>
 </template>
 

@@ -7,7 +7,11 @@
     </router-link>
     <template v-if="currentUser">
       <div class="btns">
-        <button :style="'background-image: url(' + currentUser.photoURL + ')'"></button>
+        <router-link :to="'/user/'+currentUser.uid">
+          <button
+            :style="'background-image: url(' + currentUser.photoURL + ')'"
+          />
+        </router-link>
         <button>
           <fa icon="sign-out-alt" @click="signOut" />
         </button>
@@ -26,6 +30,7 @@
 <script>
 import firebase from 'firebase'
 import { auth } from '../main'
+import { db } from '../main'
 
 export default {
   data() {
@@ -42,7 +47,9 @@ export default {
     signIn() {
       const provider = new firebase.auth.GoogleAuthProvider()
       auth.signInWithPopup(provider).then(result => {
-        alert('Hello, ' + result.user.displayName + '!')
+        this.$router.push(`/user/${result.user.uid}`)
+        alert('Hello,' + result.user.displayName + '!')
+        this.createUser(result.user)
       })
     },
     signOut() {
@@ -52,6 +59,16 @@ export default {
           this.$router.push('/'), location.reload()
         })
       }
+    },
+    createUser(user) {
+      db.collection('users').doc(user.uid).set(
+        {
+          name: user.displayName,
+          photoURL: user.photoURL,
+          email: user.email
+        },
+        { merge: true }
+      )
     }
   }
 }
