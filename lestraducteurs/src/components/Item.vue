@@ -7,19 +7,40 @@
 
       <p class="user-name">{{ user.name }}</p>
     </div>
-    <div class="content" v-html="whisper.content"/>
+
+    <div v-if="editing" class="editor">
+      <textarea v-model="whisper.content" placeholder="edit whisper" @keypress.enter="updateWhisper"/>
+      <p class="message">Press Enter to Update</p>
+    </div>
+
+    <div v-else class="content" v-html="whisper.content"/>
+    <button v-if="currentUser && currentUser.uid == user.id" @click="showBtns = !showBtns">
+      <fa icon="ellipsis-v" />
+    </button>
+    <div v-if="showBtns" class="controls">
+      <li style="color: red" @click="deleteWhisper">
+        delete
+      </li>
+      <li @click="editing = !editing">
+        edit
+      </li>
+    </div>
   </li>
 </template>
 
 <script>
 import { db } from '../main'
+import { auth } from '../main'
 
 export default {
   props: ['id', 'uid'],
   data() {
     return {
       whisper: {},
-      user: {}
+      user: {},
+      currentUser: {},
+      showBtns: false,
+      editing: false,
     }
   },
   firestore() {
@@ -27,11 +48,33 @@ export default {
       whisper: db.collection('whispers').doc(this.$props.id),
       user: db.collection('users').doc(this.$props.uid)
     }
-  }
+  },
+  created () {
+    auth.onAuthStateChanged(user => {
+      this.currentUser = user
+    })
+  },
+  methods: {
+    deleteWhisper () {
+      if (window.confirm('Are You Sure to Delete This Whisper?')) {
+        db.collection('whispers').doc(this.id).delete()
+      }
+    },
+    updateWhisper () {
+      const date = new Date()
+      db.collection('whispers').doc(this.whisper.id).set({
+        'content': this.whisper.content,
+        'date': date
+      }, { merge: true })
+        .then(
+          this.editing = false
+        )
+    },
+  },
 }
 </script>
 
-<style lang="stylus" scoped>
+<style lang="stylus">
 
 .item
   border-top 1px solid #eee
@@ -41,6 +84,30 @@ export default {
   list-style none
   padding 5px 15px
   position relative
+  .editor
+    position relative
+    width 100%
+    textarea
+      background transparent
+      resize none
+      height 80px
+      width 96%
+      border none
+      padding 10px 2%
+      font-size .9rem
+      font-weight lighter
+      &:focus
+        outline none
+    .message
+      opacity 0
+      position absolute
+      bottom 5px
+      right 10px
+      transition .2s
+      font-size .8rem
+    &:hover
+      .message
+        opacity 1
   &:first-child
     border none
   &:hover
@@ -61,4 +128,36 @@ export default {
       width 50px
   .content
     padding 10px
+  button
+    position absolute
+    top 5px
+    right 0
+    background transparent
+    color #555
+    font-size .9rem
+    opacity 0
+    transition .2s
+  .controls
+    background white
+    position absolute
+    top 5px
+    right 35px
+    box-shadow 0 0 5px rgba(0,0,0,.05)
+    border-radius 3px
+    opacity 0
+    li
+      padding 5px 20px
+      border-top 1px solid #eee
+      cursor pointer
+      &:first-child
+        border none
+  &:first-child
+    border none
+  &:hover
+    background rgba(0,0,0,.02)
+    .content
+    button
+      opacity 1
+    .controls
+      opacity 1
 </style>
